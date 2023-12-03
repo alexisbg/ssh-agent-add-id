@@ -1,0 +1,95 @@
+[project]
+name = "ssh-agent-add-id"
+description = """Checks whether an identity file has already been stored by the SSH agent. \
+    If not, it adds this identity by prompting for its passphrase."""
+dynamic = ["version"]
+authors = [
+    {name = "Alexis Bergue", email = "alexis.bergue@gmail.com"},
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX",
+    "Topic :: System :: Networking",
+    "Development Status :: 3 - Alpha",
+]
+dependencies = [
+  "pexpect ~= 4.9",
+]
+optional-dependencies.dev = [
+    "black >= 23.11.0",
+    "coverage ~= 7.3",
+    "pytest ~= 7.4",
+    "pytest-mock ~= 3.11",
+    "ruff ~= 0.1",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project.scripts]
+ssh-agent-add-id = "ssh_agent_add_id.cli:main"
+
+[tool.pdm]
+version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
+
+[tool.pdm.scripts]
+pre_coverage.composite = ["test"]
+coverage.shell = "coverage report && coverage lcov"
+black = "black --diff ."
+lint.shell = "ruff check --ignore FIX002 . && black --check ."
+ruff = "ruff check --diff --ignore FIX002 ."
+test = "coverage run -m pytest"
+
+[tool.black]
+color = true
+line-length = 100
+target-versions = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.coverage.run]
+data_file = ".coverage/.coverage"
+omit = [
+  "*/tests/*"
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.coverage.lcov]
+output = ".coverage/lcov.info"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+
+[tool.ruff]
+extend-exclude = ["*.stop"]
+line-length = 100
+target-version = "py38"
+select = ["ANN", "D", "E", "F", "FIX", "I", "W"]
+ignore = [
+  "ANN002", # missing-type-args (for *args)
+  "ANN003", # missing-type-kwargs
+  "ANN101", # missing-type-self
+  "ANN102", # missing-type-cls
+  "D100", # undocumented-public-module
+  "D104", # undocumented-public-package
+]
+
+[tool.ruff.extend-per-file-ignores]
+"tests/**/*.py" = [
+  "D205", # blank-line-after-summary
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.isort]
+force-sort-within-sections = true
+lines-after-imports = 2
