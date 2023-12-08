@@ -4,9 +4,43 @@ from typing import cast
 
 from pexpect import EOF, TIMEOUT
 import pytest
+from pytest import CaptureFixture
 from pytest_mock.plugin import MockerFixture, MockType
 from ssh_agent_add_id.errors import ExitCodeError, SignalException
 from ssh_agent_add_id.ssh_agent import SSHAgent
+
+
+class TestInit:
+    """__init__ method"""  # noqa: D415
+
+    def test_ssh_add_not_found(self, mocker: MockerFixture, capsys: CaptureFixture) -> None:
+        """Throw a FileNotFoundError if ssh-add command not found."""
+        mocker.patch("shutil.which", return_value=None)
+
+        with pytest.raises(FileNotFoundError) as exc_info:
+            SSHAgent()
+
+        assert exc_info.value.args[0] == "ssh-add command not found"
+        #
+
+    def test_ssh_auth_sock_not_found(self, mocker: MockerFixture, capsys: CaptureFixture) -> None:
+        """Throw a ValueError if SSH_AUTH_SOCK is not defined."""
+        mocker.patch("os.getenv", return_value=None)
+
+        with pytest.raises(ValueError) as exc_info:
+            SSHAgent()
+
+        assert cast(str, exc_info.value.args[0]).startswith("SSH_AUTH_SOCK not found.")
+        #
+
+    def test_success(self, mocker: MockerFixture) -> None:
+        """Run as expected."""
+        mocker.patch("os.getenv", return_value="/test/fake.socket")
+        mocker.patch("shutil.which", return_value="/test/fake/ssh-add")
+
+        agent = SSHAgent()
+
+        assert agent is not None and isinstance(agent, SSHAgent)
 
 
 class TestAddIdentity:

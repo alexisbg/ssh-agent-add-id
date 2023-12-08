@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 
 import pytest
 from pytest import CaptureFixture
@@ -16,9 +15,6 @@ class TestMain:
 
         def __init__(self, mocker: MockerFixture) -> None:  # noqa: D107
             self.mocker = mocker
-
-            self.getenv = mocker.patch("os.getenv", return_value="/test/fake.socket")
-            self.which = mocker.patch("shutil.which", return_value="/test/fake/ssh-add")
 
             self.cli_args: MockType = mocker.patch("ssh_agent_add_id.cli.CliArguments").return_value
             self.cli_args.resolve_priv_key_path.return_value = Path("/test/fake/priv")
@@ -37,30 +33,6 @@ class TestMain:
         return TestMain.Mocks(mocker)
         #
 
-    def test_ssh_add_not_found(self, mocks: Mocks, capsys: CaptureFixture) -> None:
-        """Throw a FileNotFoundError if ssh-add command not found."""
-        mocks.which.return_value = None
-
-        with pytest.raises(SystemExit) as exc_info:
-            main()
-
-        assert exc_info.value.args[0] == 1
-        assert capsys.readouterr().err == "ssh-add command not found\n"
-        assert isinstance(exc_info.value.__context__, FileNotFoundError)
-        #
-
-    def test_ssh_auth_sock_not_found(self, mocks: Mocks, capsys: CaptureFixture) -> None:
-        """Throw a ValueError if SSH_AUTH_SOCK is not defined."""
-        mocks.getenv.return_value = None
-
-        with pytest.raises(SystemExit) as exc_info:
-            main()
-
-        assert exc_info.value.args[0] == 1
-        assert cast(str, capsys.readouterr().err).startswith("SSH_AUTH_SOCK not found.")
-        assert isinstance(exc_info.value.__context__, ValueError)
-        #
-
     def test_exit_code_error(self, mocks: Mocks, capsys: CaptureFixture) -> None:
         """Catch ExitCodeError."""
         mocks.ssh_agent.side_effect = ExitCodeError(42, "fake_cmd")
@@ -71,6 +43,18 @@ class TestMain:
         assert exc_info.value.args[0] == 42
         assert capsys.readouterr().err == "Command 'fake_cmd' returned exit code 42\n"
         assert isinstance(exc_info.value.__context__, ExitCodeError)
+        #
+
+    def test_unknown_exception(self, mocks: Mocks, capsys: CaptureFixture) -> None:
+        """Catch all unknown exceptions."""
+        mocks.ssh_agent.side_effect = Exception("Fake error")
+
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.args[0] == 1
+        assert capsys.readouterr().err == "Fake error\n"
+        assert type(exc_info.value.__context__) == Exception
         #
 
     def test_is_identity_stored_true(self, mocks: Mocks) -> None:

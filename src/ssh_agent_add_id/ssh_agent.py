@@ -1,5 +1,7 @@
 import getpass
+import os
 import shlex
+import shutil
 from signal import SIGINT
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
@@ -12,6 +14,26 @@ from ssh_agent_add_id.errors import ExitCodeError, SignalException
 
 class SSHAgent:
     """Manage SSH agent identities."""
+
+    def __init__(self) -> None:
+        """Check if SSH agent is ready to use.
+
+        Raises:
+            FileNotFoundError: ssh-add command is not reachable or not installed.
+            ValueError: SSH_AUTH_SOCK environment variable is not reachable or not set.
+        """
+        # Check if ssh-add is installed
+        if not shutil.which("ssh-add"):
+            raise FileNotFoundError("ssh-add command not found")
+
+        # Check if SSH_AUTH_SOCK is defined
+        agent_sock = os.getenv("SSH_AUTH_SOCK")
+        if not agent_sock:
+            raise ValueError(
+                "SSH_AUTH_SOCK not found. If ssh-agent has been started, \
+                    can the current environment read this variable?"
+            )
+            #
 
     def add_identity(self, priv_key_path: str) -> None:
         """Add identity to the SSH agent.
