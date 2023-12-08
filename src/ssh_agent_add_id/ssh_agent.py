@@ -15,8 +15,8 @@ from ssh_agent_add_id.errors import ExitCodeError, SignalException
 class SSHAgent:
     """Manage SSH agent identities."""
 
-    def __init__(self) -> None:
-        """Check if SSH agent is ready to use.
+    def check(self) -> None:
+        """Check if SSH agent is ready for use.
 
         Raises:
             FileNotFoundError: ssh-add command is not reachable or not installed.
@@ -112,6 +112,9 @@ class SSHAgent:
             RuntimeError: If ssh-add process is still alive.
             CalledProcessError: If ssh-add process fails.
             ValueError: If :attr:`subprocess.Popen.returncode` value is not an `int` or `None`.
+
+        Returns:
+            bool: True if the given public key matches an identity stored by the SSH agent.
         """
         cmd = f"ssh-add -T {pub_key_path}"
         popen: Optional[Popen] = None

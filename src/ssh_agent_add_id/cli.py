@@ -14,6 +14,7 @@ def main() -> None:
 
     try:
         agent = SSHAgent()
+        agent.check()
 
         priv_key_path = args.resolve_priv_key_path()
         pub_key_path = args.resolve_pub_key_path()
