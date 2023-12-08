@@ -5,14 +5,12 @@ import pytest
 from pytest import CaptureFixture
 from pytest_mock.plugin import MockerFixture
 from ssh_agent_add_id.cli_arguments import CliArguments
-
-
-PROG = "ssh-agent-add-id"
+from ssh_agent_add_id.constants import APP_NAME
 
 
 def init_cli_args() -> CliArguments:
     """Initialize a CliArguments instance."""
-    sys.argv = [PROG, "/test/fake"]
+    sys.argv = [APP_NAME, "/test/fake"]
     return CliArguments()
 
 
@@ -21,7 +19,7 @@ class TestInit:
 
     def test_wrong_arg(self, capsys: CaptureFixture) -> None:
         """Throw a SystemExit error if there is an unrecognized argument."""
-        sys.argv = [PROG, "/test/fake", "/test/fake.pub", "extra_arg"]
+        sys.argv = [APP_NAME, "/test/fake", "/test/fake.pub", "extra_arg"]
 
         with pytest.raises(SystemExit) as exc_info:
             CliArguments()
@@ -32,7 +30,7 @@ class TestInit:
 
     def test_priv_key_path_arg(self) -> None:
         """Handle priv_key_path positional argument."""
-        sys.argv = [PROG, "/test/fake"]
+        sys.argv = [APP_NAME, "/test/fake"]
 
         args = CliArguments()
 
@@ -42,7 +40,7 @@ class TestInit:
 
     def test_pub_key_path_arg(self) -> None:
         """Handle priv_key_path positional argument."""
-        sys.argv = [PROG, "/test/fake", "/test/fake.pub"]
+        sys.argv = [APP_NAME, "/test/fake", "/test/fake.pub"]
 
         args = CliArguments()
 

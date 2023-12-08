@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from ssh_agent_add_id import __version__
-from ssh_agent_add_id.constants import APP_DESCRIPTION
+from ssh_agent_add_id.constants import APP_DESCRIPTION, APP_NAME
 
 
 class CliArguments:
@@ -15,7 +15,7 @@ class CliArguments:
 
     def __init__(self) -> None:
         """Setup an :class:`argparse.ArgumentParser` and parse the given CLI arguments."""
-        parser = ArgumentParser(prog="ssh-agent-add-id", description=APP_DESCRIPTION)
+        parser = ArgumentParser(prog=APP_NAME, description=APP_DESCRIPTION)
 
         # fmt: off
         parser.add_argument("priv_key_path", help="the path of the private key file")
