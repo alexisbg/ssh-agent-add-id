@@ -5,7 +5,7 @@ import shutil
 from signal import SIGINT
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 from pexpect import EOF, TIMEOUT, spawn
 
@@ -74,6 +74,10 @@ class SSHAgent:
 
                 except (EOF, TIMEOUT) as err:
                     child.close()
+
+                    if child.before:  # Get message from stderr before exception
+                        sys.stderr.write(child.before)
+
                     if child.exitstatus:
                         raise ExitCodeError(child.exitstatus, cmd)
                     if child.signalstatus:
@@ -128,9 +132,10 @@ class SSHAgent:
             if popen.returncode == 0:
                 print("This identity has already been added to the SSH agent.")
                 return True
-            elif popen.returncode == 1:
-                return False  # The exit code is 1 if the list is empty
-            elif popen.returncode and popen.returncode > 1:
+            elif popen.returncode == 1 and "Agent signature failed for" in str(stderr):
+                # ID not stored by agent
+                return False
+            elif popen.returncode and popen.returncode >= 1:
                 raise CalledProcessError(popen.returncode, popen.args, stdout, stderr)
             elif popen.returncode is None:
                 raise RuntimeError("ssh-add did not terminate as expected")
@@ -140,11 +145,11 @@ class SSHAgent:
 
         except CalledProcessError as err:
             if err.stdout:
-                sys.stdout.write(str(err.stdout) + "\n")
+                sys.stdout.write(self._append_nl(err.stdout))
             if err.stderr:
-                sys.stderr.write(str(err.stderr) + "\n")
+                sys.stderr.write(self._append_nl(err.stderr))
 
-            raise ExitCodeError(err.returncode, cmd)
+            raise ExitCodeError(err.returncode, shlex.join(err.cmd))
 
         # A signal has been received
         except SignalException as err:
@@ -162,3 +167,31 @@ class SSHAgent:
         finally:
             if popen and popen.poll() is None:
                 popen.terminate()
+                #
+
+    def _append_nl(self, message: Union[bytes, str]) -> str:
+        """Append a newline at the end of the message if there isn't one already.
+
+        Args:
+            message (Union[bytes, str]): The bytes or the string of the message.
+
+        Raises:
+            TypeError: If the given message argument is not bytes or a string.
+
+        Returns:
+            str: An UTF-8 string ending with a newline.
+        """
+        if not isinstance(message, (bytes, str)):
+            raise TypeError(
+                "The given message is not bytes or a string but " + type(message).__name__
+            )
+
+        if isinstance(message, bytes):
+            out: str = message.decode()
+        else:
+            out: str = message
+
+        if out.endswith("\n"):
+            return out
+        else:
+            return out + os.linesep
