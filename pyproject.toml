@@ -38,12 +38,14 @@ ssh-agent-add-id = "ssh_agent_add_id.cli:main"
 version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
 
 [tool.pdm.scripts]
-pre_coverage.composite = ["test"]
-coverage.shell = "coverage report && coverage lcov"
 black = "black --diff ."
+pre_coverage.composite = ["unit"]
+coverage.shell = "coverage report && coverage lcov"
+functional = "pytest tests/functional"
 lint.shell = "ruff check --ignore FIX002 . && black --check ."
 ruff = "ruff check --diff --ignore FIX002 ."
-test = "coverage run -m pytest"
+test.composite = ["unit", "functional"]
+unit = "coverage run -m pytest tests/unit"
 
 [tool.black]
 color = true
@@ -62,11 +64,6 @@ skip_covered = true
 
 [tool.coverage.lcov]
 output = ".coverage/lcov.info"
-
-[tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
 
 [tool.ruff]
 extend-exclude = ["*.stop"]
