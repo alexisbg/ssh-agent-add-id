@@ -258,8 +258,8 @@ class TestIsIdentityStored:
         assert exc_info.value.command == "fake_cmd"
 
         captured = capsys.readouterr()
-        assert captured.out == "fake stdout\n"
-        assert captured.err == "fake stderr\n"
+        assert captured.out == "fake stdout" + os.linesep
+        assert captured.err == "fake stderr" + os.linesep
 
         assert isinstance(exc_info.value.__context__, CalledProcessError)
         called_process_err = cast(CalledProcessError, exc_info.value.__context__)
@@ -406,7 +406,7 @@ class TestAppendNl:
         """Decode bytes message to a string."""
         mock_bytes = Mock(spec=bytes)  # Builtin bytes cannot be patched
         mock_decode: MockType = mock_bytes.decode
-        mock_decode.return_value = "Fake message\n"
+        mock_decode.return_value = "Fake message" + os.linesep
 
         SSHAgent()._append_nl(mock_bytes)
 

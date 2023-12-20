@@ -93,7 +93,7 @@ class SSHAgent:
                 child.sendintr()
                 child.wait()
 
-            sys.stderr.write(f"\n{err}\n")
+            sys.stderr.write(f"{os.linesep}{err}{os.linesep}")
             raise ExitCodeError(130)
 
         # Rethrow all unknown exception
@@ -157,7 +157,7 @@ class SSHAgent:
                 popen.send_signal(SIGINT)
                 popen.wait()
 
-            sys.stderr.write(f"\n{err}\n")
+            sys.stderr.write(f"{os.linesep}{err}{os.linesep}")
             raise ExitCodeError(130)
 
         # Rethrow all unknown exceptions
@@ -170,7 +170,7 @@ class SSHAgent:
                 #
 
     def _append_nl(self, message: Union[bytes, str]) -> str:
-        """Append a newline at the end of the message if there isn't one already.
+        """Append a newline at the end of the message if there is none.
 
         Args:
             message (Union[bytes, str]): The bytes or the string of the message.

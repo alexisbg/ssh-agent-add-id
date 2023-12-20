@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -41,7 +42,7 @@ class TestMain:
             main()
 
         assert exc_info.value.args[0] == 42
-        assert capsys.readouterr().err == "Command 'fake_cmd' returned exit code 42\n"
+        assert capsys.readouterr().err == "Command 'fake_cmd' returned exit code 42" + os.linesep
         assert isinstance(exc_info.value.__context__, ExitCodeError)
         #
 
@@ -53,7 +54,7 @@ class TestMain:
             main()
 
         assert exc_info.value.args[0] == 1
-        assert capsys.readouterr().err == "Fake error\n"
+        assert capsys.readouterr().err == "Fake error" + os.linesep
         assert type(exc_info.value.__context__) == Exception
         #
 

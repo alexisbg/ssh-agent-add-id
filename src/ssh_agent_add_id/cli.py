@@ -1,3 +1,4 @@
+import os
 import sys
 
 from ssh_agent_add_id.cli_arguments import CliArguments
@@ -24,14 +25,14 @@ def main() -> None:
 
     except ExitCodeError as err:
         if err.command:
-            sys.stderr.write(str(err) + "\n")
+            sys.stderr.write(str(err) + os.linesep)
 
         sys.exit(err.exit_code)
 
     except BaseException as err:
         err_msg = str(err)
         if err_msg:
-            sys.stderr.write(err_msg + "\n")
+            sys.stderr.write(err_msg + os.linesep)
 
         sys.exit(1)
 
