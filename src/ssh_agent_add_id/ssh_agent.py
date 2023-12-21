@@ -77,6 +77,9 @@ class SSHAgent:
 
                     sys.stdout.write(child.after)
 
+                    # Calling flush() is required in order for printing to work
+                    sys.stdout.flush()
+
                     if index in [0, 1]:
                         passphrase = getpass.getpass("")
                         if not passphrase:
