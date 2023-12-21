@@ -1,0 +1,22 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Add Git SSH key to agent",
+      "type": "shell",
+      "command": "ssh-agent-add-id",
+      "args": ["${userHome}/.ssh/<PRIVATE_KEY_FILE>"],
+      "presentation": {
+        "panel": "new",
+        "revealProblems": "onProblem",
+        "close": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
