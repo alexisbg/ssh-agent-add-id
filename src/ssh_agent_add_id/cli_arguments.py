@@ -1,5 +1,7 @@
 from argparse import ArgumentParser, Namespace
+import logging
 from pathlib import Path
+import sys
 from typing import Optional
 
 from ssh_agent_add_id import __version__
@@ -21,10 +23,16 @@ class CliArguments:
         parser.add_argument("priv_key_path", help="the path of the private key file")
         parser.add_argument("pub_key_path", nargs="?",
             help="the path of the public key file in case its filename is not <priv_key_path>.pub")
+        parser.add_argument("--verbose", action="store_true", help="print some extra info")
         parser.add_argument("--version", action="version", version=f"{parser.prog} {__version__}")
         # fmt: on
 
         self._args = parser.parse_args()
+
+        log_level = logging.DEBUG if self._args.verbose else logging.ERROR
+        logging.basicConfig(format="%(message)s", level=log_level, stream=sys.stdout)
+
+        logging.debug(f"args: {self._args._get_kwargs()}")
         #
 
     def resolve_priv_key_path(self) -> Path:
@@ -40,6 +48,8 @@ class CliArguments:
             self._priv_key_path = Path(self._args.priv_key_path).expanduser().resolve()
             if not self._priv_key_path.exists():
                 raise FileNotFoundError(f"{self._priv_key_path} not found")
+
+        logging.debug(f"resolve_priv_key_path: {self._priv_key_path}")
 
         return self._priv_key_path
         #
@@ -67,5 +77,7 @@ class CliArguments:
 
             if not self._pub_key_path.exists():
                 raise FileNotFoundError(f"{self._pub_key_path} not found")
+
+        logging.debug(f"resolve_pub_key_path: {self._pub_key_path}")
 
         return self._pub_key_path

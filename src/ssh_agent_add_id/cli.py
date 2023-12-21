@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -24,12 +25,16 @@ def main() -> None:
             agent.add_identity(str(priv_key_path))
 
     except ExitCodeError as err:
+        logging.debug(f"ExitCodeError[{err.exit_code}] cause: {type(err.__context__).__name__}")
+
         if err.command:
             sys.stderr.write(str(err) + os.linesep)
 
         sys.exit(err.exit_code)
 
     except BaseException as err:
+        logging.debug(f"BaseException cause: {type(err.__context__).__name__}")
+
         err_msg = str(err)
         if err_msg:
             sys.stderr.write(err_msg + os.linesep)
