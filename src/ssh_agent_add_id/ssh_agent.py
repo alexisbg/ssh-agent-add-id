@@ -1,4 +1,5 @@
 import getpass
+import logging
 import os
 import shlex
 import shutil
@@ -23,8 +24,11 @@ class SSHAgent:
             ValueError: SSH_AUTH_SOCK environment variable is not reachable or not set.
         """
         # Check if ssh-add is installed
-        if not shutil.which("ssh-add"):
+        ssh_add_path = shutil.which("ssh-add")
+        if not ssh_add_path:
             raise FileNotFoundError("ssh-add command not found")
+
+        logging.debug(f"ssh-add command path: {ssh_add_path}")
 
         # Check if SSH_AUTH_SOCK is defined
         agent_sock = os.getenv("SSH_AUTH_SOCK")
@@ -33,7 +37,9 @@ class SSHAgent:
                 "SSH_AUTH_SOCK not found. If ssh-agent has been started, \
                     can the current environment read this variable?"
             )
-            #
+
+        logging.debug(f"SSH_AUTH_SOCK value: {agent_sock}")
+        #
 
     def add_identity(self, priv_key_path: str) -> None:
         """Add identity to the SSH agent.
@@ -47,6 +53,8 @@ class SSHAgent:
             RuntimeError: If ssh-add does not run as expected.
         """
         cmd = f"ssh-add {priv_key_path}"
+        logging.debug(f"add_identity command: {cmd}")
+
         child: Optional[spawn] = None
 
         try:
@@ -63,6 +71,10 @@ class SSHAgent:
                         timeout=1,  # fails with 0
                     )
 
+                    logging.debug(f"add_identity expect index: {index}")
+                    logging.debug(f"add_identity before: {child.before}")
+                    logging.debug(f"add_identity after: {child.after}")
+
                     sys.stdout.write(child.after)
 
                     if index in [0, 1]:
@@ -70,9 +82,14 @@ class SSHAgent:
                         if not passphrase:
                             # Since ssh-add stops if the passphrase is empty, we send it a bad one.
                             passphrase = ">P_F&DFdbob20m5wl`e;ARviU@Lb>*(Uuw_?A~0cILXPlDU8f;"
+
+                        logging.debug(f"add_identity passphrase: {passphrase}")
+
                         child.sendline(passphrase)
 
                 except (EOF, TIMEOUT) as err:
+                    logging.debug(f"add_identity expect exception: {type(err).__name__}")
+
                     child.close()
 
                     if child.before:  # Get message from stderr before exception
@@ -85,6 +102,7 @@ class SSHAgent:
                     if isinstance(err, TIMEOUT):
                         raise RuntimeError("ssh-add did not run as expected")
 
+                    # EOF without failure
                     return
 
         # A signal has been received
@@ -121,11 +139,17 @@ class SSHAgent:
             bool: True if the given public key matches an identity stored by the SSH agent.
         """
         cmd = f"ssh-add -T {pub_key_path}"
+        logging.debug(f"is_identity_stored command: {cmd}")
+
         popen: Optional[Popen] = None
 
         try:
             popen = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
             stdout, stderr = popen.communicate()
+
+            logging.debug(f"is_identity_stored returncode: {popen.returncode}")
+            logging.debug(f"is_identity_stored stdout: {stdout}")
+            logging.debug(f"is_identity_stored stderr: {stderr}")
 
             assert popen.returncode is None or isinstance(popen.returncode, int)
 
