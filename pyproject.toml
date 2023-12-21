@@ -8,13 +8,23 @@ authors = [
 ]
 requires-python = ">=3.8"
 readme = "README.md"
-license = {text = "MIT"}
+license = {file = "LICENSE.txt"}
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: POSIX",
     "Topic :: System :: Networking",
-    "Development Status :: 3 - Alpha",
+]
+keywords = [
+  "ssh", "ssh-add", "ssh-agent", "authentication", "key", "identity",
+  "vscode", "vs code", "visual studio code", "wsl", "wsl2",
+  "git", "github", "gitlab", "bitbucket"
 ]
 dependencies = [
   "pexpect ~= 4.9",
