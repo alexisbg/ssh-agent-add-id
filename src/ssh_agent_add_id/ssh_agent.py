@@ -9,6 +9,7 @@ import sys
 from typing import Optional, Union
 
 from pexpect import EOF, TIMEOUT, spawn
+from pydantic import ConfigDict, validate_call
 
 from ssh_agent_add_id.errors import ExitCodeError, SignalException
 
@@ -34,13 +35,14 @@ class SSHAgent:
         agent_sock = os.getenv("SSH_AUTH_SOCK")
         if not agent_sock:
             raise ValueError(
-                "SSH_AUTH_SOCK not found. If ssh-agent has been started, \
-                    can the current environment read this variable?"
+                "SSH_AUTH_SOCK not found. If ssh-agent has been started, "
+                + "can the current environment read this variable?"
             )
 
         logging.debug(f"SSH_AUTH_SOCK value: {agent_sock}")
         #
 
+    @validate_call(config=ConfigDict(strict=True))
     def add_identity(self, priv_key_path: str) -> None:
         """Add identity to the SSH agent.
 
@@ -51,6 +53,7 @@ class SSHAgent:
             ExitCodeError: If ssh-add exit code is not zero or a signal has been received.
             SignalException: If a signal has been received.
             RuntimeError: If ssh-add does not run as expected.
+            ValidationError: If an argument type is not valid.
         """
         cmd = f"ssh-add {priv_key_path}"
         logging.debug(f"add_identity command: {cmd}")
@@ -126,6 +129,7 @@ class SSHAgent:
                 child.close()
                 #
 
+    @validate_call(config=ConfigDict(strict=True))
     def is_identity_stored(self, pub_key_path: str) -> bool:
         """Search for the given identity among all those currently stored by the SSH agent.
 
@@ -137,6 +141,7 @@ class SSHAgent:
             RuntimeError: If ssh-add process is still alive.
             CalledProcessError: If ssh-add process fails.
             ValueError: If :attr:`subprocess.Popen.returncode` value is not an `int` or `None`.
+            ValidationError: If an argument type is not valid.
 
         Returns:
             bool: True if the given public key matches an identity stored by the SSH agent.
@@ -154,8 +159,6 @@ class SSHAgent:
             logging.debug(f"is_identity_stored stdout: {stdout}")
             logging.debug(f"is_identity_stored stderr: {stderr}")
 
-            assert popen.returncode is None or isinstance(popen.returncode, int)
-
             if popen.returncode == 0:
                 print("This identity has already been added to the SSH agent.")
                 return True
@@ -167,8 +170,10 @@ class SSHAgent:
             elif popen.returncode is None:
                 raise RuntimeError("ssh-add did not terminate as expected")
             else:
-                rc = popen.returncode
-                raise ValueError(f"Unexpected Popen returncode value: [{type(rc).__name__}] {rc}")
+                raise ValueError(
+                    "Unexpected Popen returncode value: "
+                    + f"[{type(popen.returncode).__name__}] {popen.returncode}"
+                )
 
         except CalledProcessError as err:
             if err.stdout:
@@ -196,6 +201,7 @@ class SSHAgent:
                 popen.terminate()
                 #
 
+    @validate_call(config=ConfigDict(strict=True))
     def _append_nl(self, message: Union[bytes, str]) -> str:
         """Append a newline at the end of the message if there is none.
 
@@ -203,20 +209,15 @@ class SSHAgent:
             message (Union[bytes, str]): The bytes or the string of the message.
 
         Raises:
-            TypeError: If the given message argument is not bytes or a string.
+            ValidationError: If an argument type is not valid.
 
         Returns:
             str: An UTF-8 string ending with a newline.
         """
-        if not isinstance(message, (bytes, str)):
-            raise TypeError(
-                "The given message is not bytes or a string but " + type(message).__name__
-            )
-
         if isinstance(message, bytes):
             out: str = message.decode()
         else:
-            out: str = message
+            out: str = message  # pyright: ignore[reportGeneralTypeIssues]
 
         if out.endswith("\n"):
             return out
