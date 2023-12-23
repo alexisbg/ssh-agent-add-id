@@ -31,7 +31,6 @@ dependencies = [
     "pydantic ~= 2.5",
 ]
 optional-dependencies.dev = [
-    "black >= 23.12.0",
     "coverage ~= 7.3",
     "pytest ~= 7.4",
     "pytest-mock ~= 3.11",
@@ -49,19 +48,15 @@ ssh-agent-add-id = "ssh_agent_add_id.cli:main"
 version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
 
 [tool.pdm.scripts]
-black = "black --diff ."
-pre_coverage.composite = ["unit"]
+pre_coverage.composite = ["test_unit"]
 coverage.shell = "coverage report && coverage lcov"
-functional = "pytest tests/functional"
-lint.shell = "ruff check --ignore FIX002 . && black --check ."
-ruff = "ruff check --diff --ignore FIX002 ."
-test.composite = ["unit", "functional"]
-unit = "coverage run -m pytest tests/unit"
-
-[tool.black]
-color = true
-line-length = 100
-target-versions = ["py38", "py39", "py310", "py311", "py312"]
+diff.composite = ["ruff_check", "ruff_format"]
+lint.shell = "ruff check --ignore FIX002 ; ruff format --check"
+ruff_check = "ruff check --diff --ignore FIX002"
+ruff_format = "ruff format --diff"
+test.composite = ["test_unit", "test_functional"]
+test_functional = "pytest tests/functional"
+test_unit = "coverage run -m pytest tests/unit"
 
 [tool.coverage.run]
 data_file = ".coverage/.coverage"
@@ -80,6 +75,8 @@ output = ".coverage/lcov.info"
 extend-exclude = ["*.stop"]
 line-length = 100
 target-version = "py38"
+
+[tool.ruff.lint]
 select = ["ANN", "D", "E", "F", "FIX", "I", "W"]
 ignore = [
   "ANN002", # missing-type-args (for *args)
@@ -90,7 +87,7 @@ ignore = [
   "D104", # undocumented-public-package
 ]
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/**/*.py" = [
   "D205", # blank-line-after-summary
 ]
