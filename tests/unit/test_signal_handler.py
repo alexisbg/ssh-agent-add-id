@@ -1,5 +1,7 @@
 from signal import Signals
+from typing import cast
 
+from pydantic import ValidationError
 import pytest
 from pytest_mock.plugin import MockerFixture
 from ssh_agent_add_id.errors import SignalException
@@ -23,6 +25,17 @@ class TestInit:
 
 class TestHandler:
     """_handler method"""  # noqa: D415
+
+    def test_arg_type_validation_error(self) -> None:
+        """Throw a ValidationError if signum argument is not a integer."""
+        with pytest.raises(ValidationError) as exc_info:
+            SignalHandler._handler(cast(int, "fake"), None)
+
+        assert exc_info.value.title == "_handler"
+        errs = exc_info.value.errors()
+        assert len(errs) == 1
+        assert errs[0].get("type") == "int_type"
+        #
 
     def test_success(self) -> None:
         """Runs as expected."""

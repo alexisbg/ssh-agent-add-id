@@ -2,9 +2,9 @@ import os
 from signal import SIGINT
 from subprocess import CalledProcessError
 from typing import cast
-from unittest.mock import Mock
 
 from pexpect import EOF, TIMEOUT
+from pydantic import ValidationError
 import pytest
 from pytest import CaptureFixture
 from pytest_mock.plugin import MockerFixture, MockType
@@ -73,6 +73,17 @@ class TestAddIdentity:
     def mocks(self, mocker: MockerFixture) -> Mocks:
         """A fixture that returns a Mocks instance."""
         return TestAddIdentity.Mocks(mocker)
+        #
+
+    def test_arg_type_validation_error(self) -> None:
+        """Throw a ValidationError if priv_key_path argument is not a string."""
+        with pytest.raises(ValidationError) as exc_info:
+            SSHAgent().add_identity(cast(str, 42))
+
+        assert exc_info.value.title == "add_identity"
+        errs = exc_info.value.errors()
+        assert len(errs) == 1
+        assert errs[0].get("type") == "string_type"
         #
 
     def test_signal_exception(self, mocks: Mocks) -> None:
@@ -243,6 +254,17 @@ class TestIsIdentityStored:
         return TestIsIdentityStored.Mocks(mocker)
         #
 
+    def test_arg_type_validation_error(self) -> None:
+        """Throw a ValidationError if pub_key_path argument is not a string."""
+        with pytest.raises(ValidationError) as exc_info:
+            SSHAgent().is_identity_stored(cast(str, 42))
+
+        assert exc_info.value.title == "is_identity_stored"
+        errs = exc_info.value.errors()
+        assert len(errs) == 1
+        assert errs[0].get("type") == "string_type"
+        #
+
     def test_called_process_error(self, mocks: Mocks, capsys: CaptureFixture) -> None:
         """Catch CalledProcessError."""
         mocks.communicate.side_effect = CalledProcessError(
@@ -392,23 +414,28 @@ class TestIsIdentityStored:
 class TestAppendNl:
     """is_identity_stored method"""  # noqa: D415
 
-    def test_message_type_error(self) -> None:
-        """Throw a TypeError if message argument is not bytes or a string."""
-        agent = SSHAgent()
+    def test_arg_type_validation_error(self) -> None:
+        """Throw a ValidationError if message argument is not bytes or a string."""
+        with pytest.raises(ValidationError) as exc_info:
+            SSHAgent()._append_nl(cast(bytes, 42))
 
-        with pytest.raises(TypeError) as exc_info:
-            agent._append_nl(cast(bytes, 42))
-
-        assert exc_info.value.args[0] == "The given message is not bytes or a string but int"
+        assert exc_info.value.title == "_append_nl"
+        errs = exc_info.value.errors()
+        assert len(errs) == 2
+        assert errs[0].get("type") == "bytes_type"
+        assert errs[1].get("type") == "string_type"
         #
 
-    def test_bytes_message(self) -> None:
+    def test_bytes_message(self, mocker: MockerFixture) -> None:
         """Decode bytes message to a string."""
-        mock_bytes = Mock(spec=bytes)  # Builtin bytes cannot be patched
-        mock_decode: MockType = mock_bytes.decode
+
+        class _FakeBytes(bytes):  # Builtin bytes cannot be patched
+            pass
+
+        mock_decode = mocker.patch.object(_FakeBytes, "decode")
         mock_decode.return_value = "Fake message" + os.linesep
 
-        SSHAgent()._append_nl(mock_bytes)
+        SSHAgent()._append_nl(_FakeBytes())
 
         mock_decode.assert_called_once()
         #

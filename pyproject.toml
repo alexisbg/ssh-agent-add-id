@@ -27,7 +27,8 @@ keywords = [
   "git", "github", "gitlab", "bitbucket"
 ]
 dependencies = [
-  "pexpect ~= 4.9",
+    "pexpect ~= 4.9",
+    "pydantic ~= 2.5",
 ]
 optional-dependencies.dev = [
     "black >= 23.12.0",
