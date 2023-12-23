@@ -1,7 +1,7 @@
 [project]
 name = "ssh-agent-add-id"
 description = """Checks whether an identity file has already been stored by the SSH agent. \
-    If not, it adds this identity by prompting for its passphrase."""
+If not, it adds this identity by prompting for its passphrase."""
 dynamic = ["version"]
 authors = [
     {name = "Alexis Bergue", email = "alexis.bergue@gmail.com"},
@@ -43,6 +43,11 @@ build-backend = "pdm.backend"
 
 [project.scripts]
 ssh-agent-add-id = "ssh_agent_add_id.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/alexisbg/ssh-agent-add-id"
+Issues = "https://github.com/alexisbg/ssh-agent-add-id/issues"
+Repository = "https://github.com/alexisbg/ssh-agent-add-id"
 
 [tool.pdm]
 version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
