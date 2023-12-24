@@ -4,7 +4,7 @@ description = """Checks whether an identity file has already been stored by the 
 If not, it adds this identity by prompting for its passphrase."""
 dynamic = ["version"]
 authors = [
-    {name = "Alexis Bergue", email = "alexis.bergue@gmail.com"},
+    {name = "Alexis Bergue"},
 ]
 requires-python = ">=3.8"
 readme = "README.md"
