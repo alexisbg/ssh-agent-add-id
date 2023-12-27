@@ -1,0 +1,40 @@
+name: Create Release
+
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+  # workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      # Required by release creation
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Get previous tag
+        id: prev_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags HEAD~1)" >> $GITHUB_OUTPUT
+
+      - name: Get commit titles since previous tag
+        id: commit_titles
+        run: |
+          {
+            echo "lines<<EOF"
+            echo "$(git --no-pager log --pretty=format:'- %s' ${{ steps.prev_tag.outputs.tag }}..HEAD~1)"
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.13.0
+        with:
+          # 'tag' default value is github.ref and 'name' default value is 'tag' value
+          body: |
+            ### Changes since last release:
+            ${{ steps.commit_titles.outputs.lines }}
