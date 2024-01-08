@@ -7,7 +7,7 @@ from ssh_agent_add_id.errors import SignalException
 
 
 class SignalHandler:
-    """Raise a SignalError when some signals are received."""
+    """Raise a SignalException when some signals are received."""
 
     def __init__(self) -> None:
         """Define a custom handler for some signals."""
@@ -19,7 +19,7 @@ class SignalHandler:
     @staticmethod
     @validate_call(config=ConfigDict(strict=True))
     def _handler(signum: int, frame: Any) -> None:  # noqa: ANN401
-        """The signal handler throws a SignalException when it is called.
+        """The signal handler throws a `SignalException` when it is called.
 
         Args:
             signum (int): The integer value of a signal.
