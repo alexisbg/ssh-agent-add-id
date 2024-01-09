@@ -1,9 +1,4 @@
 {
-  "python.analysis.typeCheckingMode": "basic",
-  "python.analysis.exclude": [
-    ".venv",
-    "build",
-  ],
   "python.testing.pytestArgs": [
     "tests",
   ],

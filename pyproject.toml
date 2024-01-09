@@ -3,12 +3,20 @@ name = "ssh-agent-add-id"
 description = """Checks whether an identity file has already been stored by the SSH agent. \
 If not, it adds this identity by prompting for its passphrase."""
 dynamic = ["version"]
-authors = [
-    {name = "Alexis Bergue"},
-]
-requires-python = ">=3.8"
+authors = [{name = "Alexis Bergue"}]
 readme = "README.md"
 license = {file = "LICENSE.txt"}
+requires-python = ">=3.8"
+dependencies = [
+    "pexpect ~= 4.9",
+    "pydantic ~= 2.5",
+]
+optional-dependencies.dev = [
+    "coverage ~= 7.3",
+    "pytest ~= 7.4",
+    "pytest-mock ~= 3.11",
+    "ruff ~= 0.1",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
@@ -26,20 +34,6 @@ keywords = [
   "vscode", "vs code", "visual studio code", "wsl", "wsl2",
   "git", "github", "gitlab", "bitbucket"
 ]
-dependencies = [
-    "pexpect ~= 4.9",
-    "pydantic ~= 2.5",
-]
-optional-dependencies.dev = [
-    "coverage ~= 7.3",
-    "pytest ~= 7.4",
-    "pytest-mock ~= 3.11",
-    "ruff ~= 0.1",
-]
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
 
 [project.scripts]
 ssh-agent-add-id = "ssh_agent_add_id.cli:main"
@@ -49,6 +43,10 @@ Homepage = "https://github.com/alexisbg/ssh-agent-add-id"
 Issues = "https://github.com/alexisbg/ssh-agent-add-id/issues"
 Repository = "https://github.com/alexisbg/ssh-agent-add-id"
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
 [tool.pdm]
 version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
 
@@ -56,7 +54,7 @@ version = { source = "file", path = "src/ssh_agent_add_id/__init__.py" }
 pre_coverage.composite = ["test_unit"]
 coverage.shell = "coverage report && coverage lcov"
 diff.composite = ["ruff_check", "ruff_format"]
-lint.shell = "ruff check --ignore FIX002 ; ruff format --check"
+lint.shell = "pyright; ruff check --ignore FIX002 ; ruff format --check"
 ruff_check = "ruff check --diff --ignore FIX002"
 ruff_format = "ruff format --diff"
 test.composite = ["test_unit", "test_functional"]
@@ -75,6 +73,11 @@ skip_covered = true
 
 [tool.coverage.lcov]
 output = ".coverage/lcov.info"
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.8"
+typeCheckingMode = "basic"
 
 [tool.ruff]
 extend-exclude = ["*.stop"]
