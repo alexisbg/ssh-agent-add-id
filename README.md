@@ -1,12 +1,16 @@
 # ssh-agent-add-id
 A wrapper for `ssh-add` that checks whether a key has already been added to the `SSH agent` rather than prompting for the passphrase every time.
 
+<br />
+
 ## Description
 `ssh-agent-add-id` was primarily created to address a [pending issue](https://github.com/microsoft/vscode-remote-release/issues/2369) in the `VS Code` [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) when authenticating with an SSH key that requires a passphrase, such as for a remote Git repository. If this key has not been previously added to the `SSH agent` accessible from the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl), `VS Code` does not prompt for the passphrase, causing operations like pushing to the remote repository to get stuck.
 
 `ssh-agent-add-id` serves as a wrapper for the [ssh-add](https://man.openbsd.org/ssh-add) command. However, unlike the latter, it does not prompt again for the passphrase and exits quietly if the key has already been added to the SSH agent. It can thus be easily executed in a `VS Code` task when a project is opened. 
 
 And beyond remote Git repositories and WSL, `ssh-agent-add-id` can be also be used with cloud services that rely on SSH key authentication and thus reduce the number of times you need to enter your passphrases.
+
+<br />
 
 ## Requirements
 ### SSH agent
@@ -17,6 +21,8 @@ And beyond remote Git repositories and WSL, `ssh-agent-add-id` can be also be us
 ### ssh-agent-add-id
 - Requires `Python 3.8+`.
 - It should run smoothly on `macOS` and all `Linux` distributions. However, on `Windows`, it only runs within [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
+
+<br />
 
 ## Installation
 `ssh-agent-add-id` can be installed using `pip`:
@@ -45,6 +51,8 @@ Add a task to your VS Code project (in [.vscode/tasks.json](https://github.com/a
 ```
 Thanks to ["runOptions"/"runOn": "folderOpen"](https://code.visualstudio.com/docs/editor/tasks#_run-behavior), this task runs every time your project is opened, launching a new dedicated terminal. If the identity/key was already added to the `SSH agent`, this terminal closes immediately. Otherwise, it prompts for the key passphrase.
 
+<br />
+
 ## Command line usage
 ```
 usage: ssh-agent-add-id [-h] [--version] priv_key_path [pub_key_path]
@@ -58,6 +66,8 @@ optional arguments:
   --verbose      print some extra info
   --version      show program's version number and exit
 ```
+
+<br />
 
 ## License
 This project is licensed under the terms of the MIT license.
