@@ -1,7 +1,7 @@
 [project]
 name = "ssh-agent-add-id"
-description = """Checks whether an identity file has already been stored by the SSH agent. \
-If not, it adds this identity by prompting for its passphrase."""
+description = """A wrapper for ssh-add that checks whether a key has already been added \
+to the SSH agent rather than prompting for the passphrase every time."""
 dynamic = ["version"]
 authors = [{name = "Alexis Bergue"}]
 readme = "README.md"

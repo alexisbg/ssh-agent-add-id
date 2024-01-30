@@ -1,5 +1,5 @@
 # ssh-agent-add-id
-Checks whether an identity file has already been stored by the SSH agent. If not, it adds this identity by prompting for its passphrase.
+A wrapper for `ssh-add` that checks whether a key has already been added to the `SSH agent` rather than prompting for the passphrase every time.
 
 ## Description
 `ssh-agent-add-id` was primarily created to address a [pending issue](https://github.com/microsoft/vscode-remote-release/issues/2369) in the `VS Code` [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) when authenticating with an SSH key that requires a passphrase, such as for a remote Git repository. If this key has not been previously added to the `SSH agent` accessible from the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl), `VS Code` does not prompt for the passphrase, causing operations like pushing to the remote repository to get stuck.
