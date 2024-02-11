@@ -100,9 +100,9 @@ ignore = [
   "D205", # blank-line-after-summary
 ]
 
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-sort-within-sections = true
 lines-after-imports = 2
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
