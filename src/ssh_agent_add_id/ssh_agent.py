@@ -217,7 +217,7 @@ class SSHAgent:
         if isinstance(message, bytes):
             out: str = message.decode()
         else:
-            out: str = message  # pyright: ignore[reportGeneralTypeIssues]
+            out: str = message  # pyright: ignore[reportAssignmentType]
 
         if out.endswith("\n"):
             return out
