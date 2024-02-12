@@ -1,4 +1,8 @@
 # ssh-agent-add-id
+
+![PyPI - Version](https://img.shields.io/pypi/v/ssh-agent-add-id)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ssh-agent-add-id)
+
 A wrapper for `ssh-add` that checks whether a key has already been added to the `SSH agent` rather than prompting for the passphrase every time.
 
 <br />
