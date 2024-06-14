@@ -78,7 +78,7 @@ class SSHAgent:
                     logging.debug(f"add_identity before: {child.before}")
                     logging.debug(f"add_identity after: {child.after}")
 
-                    sys.stdout.write(child.after)
+                    sys.stdout.write(str(child.after))
 
                     # Calling flush() is required in order for printing to work
                     sys.stdout.flush()
